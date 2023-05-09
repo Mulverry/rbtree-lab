@@ -5,17 +5,10 @@
 rbtree* new_rbtree(void) {
 	rbtree* p = (rbtree*)calloc(1, sizeof(rbtree));
 	// TODO: initialize struct if needed
-	p->nil = (node_t*)calloc(1, sizeof(node_t)); //노드에 메모리 넣어줌.
-	p->nil->color = RBTREE_BLACK;
+	p->nil = (node_t*)calloc(1, sizeof(node_t));
 	p->root = p->nil;
+	p->nil->color = RBTREE_BLACK;
 	return p;
-}
-void delete_one(rbtree* t, node_t* cur) {
-	if (cur != t->nil) {
-		delete_one(t, cur->left);
-		delete_one(t, cur->right);
-		free(cur);
-	}
 }
 
 void delete_rbtree(rbtree* t) {
@@ -23,6 +16,14 @@ void delete_rbtree(rbtree* t) {
 	delete_one(t, t->root);
 	free(t->nil);
 	free(t);
+}
+
+void delete_one(rbtree* t, node_t* cur) {
+	if (cur != t->nil) {
+		delete_one(t, cur->left);
+		delete_one(t, cur->right);
+		free(cur);
+	}
 }
 
 void rotate_left(rbtree *t, node_t *x){
@@ -65,6 +66,37 @@ void rotate_right(rbtree *t, node_t *x){
 	x->parent = y;
 }
 
+node_t *rbtree_insert(rbtree *t, const key_t key) {
+  // TODO: implement insert
+  node_t *node_to_insert = (node_t *)calloc(1, sizeof(node_t));
+  node_to_insert->key = key;
+  
+  // 어디에다 노드를 집어넣을 건지 확인
+  node_t *x = t->root;
+  node_t *y = t->nil;
+  while (x != t->nil){ //루트노드가 존재하는 동안
+    y = x;
+    if (node_to_insert-> key < x->key){ //새로 집어넣는 노드의 key가 루트노드의 key보다 작으면
+      x = x->left;
+    } else {
+		x= x->right;
+	}
+  }
+  node_to_insert->parent = y;
+  if (y == t->nil){ 	//node_to_insert의 부모 노드가 없을 때, node_to_insert는 루트노드가 됨.
+	t->root = node_to_insert;
+  }
+  else if (node_to_insert->key < y->key){//node_to_insert의 key가 부모노드의 것보다 작으면 왼쪽 자식이 됨.
+	y->left = node_to_insert;
+  }
+  else{y->right = node_to_insert;}
+  node_to_insert->left = t->nil;
+  node_to_insert->right = t->nil;
+  node_to_insert->color = RBTREE_RED;
+  rbtree_insert_fixup(t, node_to_insert);
+  return node_to_insert;
+}
+
 node_t* rbtree_insert_fixup(rbtree* t, node_t *node_to_insert){
 	node_t *grandparent = node_to_insert->parent->parent;
 	while (node_to_insert->parent->color == RBTREE_RED){
@@ -72,9 +104,9 @@ node_t* rbtree_insert_fixup(rbtree* t, node_t *node_to_insert){
 		if (node_to_insert->parent == grandparent->left){
 			node_t *uncle = grandparent->right;
 			if (uncle->color == RBTREE_RED){
-				node_to_insert->parent->color = RBTREE_BLACK;
-				uncle->color = RBTREE_BLACK;
-				grandparent->color = RBTREE_RED;
+				node_to_insert->parent->color == RBTREE_BLACK;
+				uncle->color == RBTREE_BLACK;
+				grandparent->color == RBTREE_RED;
 				node_to_insert = grandparent; // while문으로 다시 할아버지 확인
 			} else { // case2, case3. 부모는 red인데 삼촌이 black인 경우
 				//case2.
@@ -106,37 +138,6 @@ node_t* rbtree_insert_fixup(rbtree* t, node_t *node_to_insert){
 	}
 	t->root->color = RBTREE_BLACK;
 	return t->root;
-}
-
-node_t *rbtree_insert(rbtree *t, const key_t key) {
-  // TODO: implement insert
-  node_t *node_to_insert = (node_t *)calloc(1, sizeof(node_t));
-  node_to_insert->key = key;
-  
-  // 어디에다 노드를 집어넣을 건지 확인
-  node_t *x = t->root;
-  node_t *y = t->nil;
-  while (x != t->nil){ //루트노드가 존재하는 동안
-    y = x;
-    if (node_to_insert-> key < x->key){ //새로 집어넣는 노드의 key가 루트노드의 key보다 작으면
-      x = x->left;
-    } else {
-		x= x->right;
-	}
-  }
-  node_to_insert->parent = y;
-  if (y == t->nil){ 	//node_to_insert의 부모 노드가 없을 때, node_to_insert는 루트노드가 됨.
-	t->root = node_to_insert;
-  }
-  else if (node_to_insert->key < y->key){//node_to_insert의 key가 부모노드의 것보다 작으면 왼쪽 자식이 됨.
-	y->left = node_to_insert;
-  }
-  else{y->right = node_to_insert;}
-  node_to_insert->left = t->nil;
-  node_to_insert->right = t->nil;
-  node_to_insert->color = RBTREE_RED;
-  rbtree_insert_fixup(t, node_to_insert);
-  return node_to_insert;
 }
 
 node_t* rbtree_find(const rbtree* t, const key_t key) {
@@ -177,23 +178,8 @@ node_t* rbtree_max(const rbtree* t) {
 	return tmp;
 }
 
-void transplant(rbtree *t, node_t *u, node_t *v){
-	// RBtree 특성을 위반할 수 있는 노드를 관리하기 위해. 노드u를 노드v로 교체하는 함수.
-	if (u->parent == t->nil){ //u가 루트로드라면
-		t->root = v;
-	} else if (u == u->parent->left){
-		u->parent->left = v;
-	} else {
-		u->parent->right = v;
-	}
-	v->parent = u->parent;
-}
-
-int rbtree_erase(rbtree* t, node_t* z) {
+int rbtree_erase(rbtree* t, node_t* p) {
 	// TODO: implement erase: 특정 노드 삭제 작업
-	node_t * y = z;
-	y-> color;
-
 	return 0;
 }
 
