@@ -177,7 +177,10 @@ node_t* rbtree_max(const rbtree* t) {
 	return tmp;
 }
 
-void transplant(rbtree *t, node_t *u, node_t *v){
+
+
+
+void rbtransplant(rbtree *t, node_t *u, node_t *v){
 	// RBtree 특성을 위반할 수 있는 노드를 관리하기 위해. 노드u를 노드v로 교체하는 함수.
 	if (u->parent == t->nil){ //u가 루트로드라면
 		t->root = v;
@@ -189,11 +192,89 @@ void transplant(rbtree *t, node_t *u, node_t *v){
 	v->parent = u->parent;
 }
 
-int rbtree_erase(rbtree* t, node_t* z) {
-	// TODO: implement erase: 특정 노드 삭제 작업
-	node_t * y = z;
-	y-> color;
+void rbtree_erase_fixup(rbtree* t, node_t* x){
+	while (x != t->root && x->color == RBTREE_BLACK){
+		if (x == x->parent->left){
+			node_t *brother = x->parent->right;
+			if (brother->color == RBTREE_RED){ //case 1
+				brother->color = RBTREE_BLACK;
+				x->parent->color = RBTREE_RED;
+				rotate_left(t,x->parent);
+				brother = x->parent->right;
+			}
+			if (brother->left->color == RBTREE_BLACK && brother->right->color == RBTREE_BLACK){//case2
+				brother->color = RBTREE_RED;
+				x= x->parent;
+			} else if (brother->right->color == RBTREE_BLACK){
+				brother->left->color = RBTREE_BLACK;
+				brother->color = RBTREE_RED;
+				rotate_right(t, brother);
+				brother = x->parent->right;
+			} else{
+				brother->color = x->parent->color;
+				x->parent->color = RBTREE_BLACK;
+				brother->right->color = RBTREE_BLACK;
+				rotate_left(t, x->parent);
+				x= t->root;
+			}
+		} else{
+			node_t *brother = x->parent->left;
+			if (brother->color == RBTREE_RED){
+				brother->color = RBTREE_BLACK;
+				x->parent->color = RBTREE_RED;
+				rotate_right(t, x->parent);
+				brother = x->parent->left;
+			}
+			if (brother->left->color == RBTREE_BLACK && brother->right->color == RBTREE_BLACK){
+				brother->color = RBTREE_RED;
+				x = x->parent;
+			} else if (brother->left->color == RBTREE_BLACK){
+				brother->right->color = RBTREE_BLACK;
+				brother->color = RBTREE_RED;
+				rotate_left(t, brother);
+				brother = x->parent->left;
+			} else {
+				brother->color = x->parent->color;
+				x->parent->color = RBTREE_BLACK;
+				brother->left->color = RBTREE_BLACK;
+				rotate_right(t, x->parent);
+				x= t->root;
+			}
+		}
+		x->color = RBTREE_BLACK;
+	}
+}
 
+int rbtree_erase(rbtree* t, node_t* z) {
+	// TODO: implement erase: 특정 노드 z 삭제 작업
+	node_t *y = z;  // y = z가 있던 자리로 이동하는 노드.
+	color_t y_original_color = y->color;
+	node_t *x;
+	if (z->left == t->nil){
+		x = z->right; //x = y의 원래 y위치로 이동하는 노드
+		rbtransplant(t, z, z->right);
+	} else if (z->right == t->nil){
+		x = z->left;
+		rbtransplant(t, z, z->left);
+	} else{
+		y= rbtree_min(z->right); //z가 자식이 둘 있을 경우 rbtree_min(z->right)는 z의 successor.
+		x = y->right;
+		if (y->parent == z->parent){
+			x->parent = y;
+		} else {
+			rbtransplant(t, y, y->right);
+			y->right = z->right;
+			y->right ->parent = y;
+		}
+		rbtransplant(t, z, y);
+		y->left = z->left;
+		y->left->parent = y;
+		y->color = z->color;
+	}
+	if (y_original_color == RBTREE_BLACK){
+		rbtree_erase_fixup(t, x);
+	}
+	free(z);
 	return 0;
 }
 
