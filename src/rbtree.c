@@ -166,6 +166,16 @@ node_t* rbtree_min(const rbtree* t) {
 	return tmp;
 }
 
+// node_t* subtree_min(rbtree* t, node_t *cur){//erase의 rbtree_min(z->right) 오류 때문에 만든 함수
+// 	node_t* tmp;
+// 	if (tmp != NULL) {
+// 		while (tmp->left != NULL) {
+// 			tmp = tmp->left;
+// 		}
+// 	}
+// 	return tmp;
+// } 
+
 node_t* rbtree_max(const rbtree* t) {
 	// TODO: implement find: tree의 max key를 가지는 노드반환
 	node_t* tmp = t->root;
@@ -176,9 +186,6 @@ node_t* rbtree_max(const rbtree* t) {
 	}
 	return tmp;
 }
-
-
-
 
 void rbtransplant(rbtree *t, node_t *u, node_t *v){
 	// RBtree 특성을 위반할 수 있는 노드를 관리하기 위해. 노드u를 노드v로 교체하는 함수.
@@ -278,7 +285,27 @@ int rbtree_erase(rbtree* t, node_t* z) {
 	return 0;
 }
 
+void in_order_to_arr(const rbtree* t, key_t* arr, node_t* tmp, int* index){
+	if (tmp != t->nil){
+		if (tmp->left != t->nil){
+			in_order_to_arr(t, arr, tmp->left, index);
+		}
+		arr[(*index)++] = tmp->key;
+		if (tmp->right != t->nil){
+			in_order_to_arr(t, arr, tmp->right, index);
+		}
+	}
+}
+
 int rbtree_to_array(const rbtree* t, key_t* arr, const size_t n) {
 	// TODO: implement to_array
+	// * RB tree의 내용을 key 순서대로 주어진 array로 변환
+	// * array의 크기는 n으로 주어지며 tree의 크기가 n 보다 큰 경우에는 순서대로 n개 까지만 변환
+	// * array의 메모리 공간은 이 함수를 부르는 쪽에서 준비하고 그 크기를 n으로 알려줍니다.
+	// inorder traversing
+
+	int *index = calloc(1, sizeof(index));
+	in_order_to_arr(t, arr, t->root, index);
+	free(index);
 	return 0;
 }
