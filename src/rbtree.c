@@ -166,15 +166,14 @@ node_t* rbtree_min(const rbtree* t) {
 	return tmp;
 }
 
-// node_t* subtree_min(rbtree* t, node_t *cur){//erase의 rbtree_min(z->right) 오류 때문에 만든 함수
-// 	node_t* tmp;
-// 	if (tmp != NULL) {
-// 		while (tmp->left != NULL) {
-// 			tmp = tmp->left;
-// 		}
-// 	}
-// 	return tmp;
-// } 
+node_t* subtree_min(rbtree* t, node_t *tmp){//erase의 rbtree_min(z->right) 오류 때문에 만든 함수
+	if (tmp != NULL) {
+		while (tmp->left != NULL) {
+			tmp = tmp->left;
+		}
+	}
+	return tmp;
+} 
 
 node_t* rbtree_max(const rbtree* t) {
 	// TODO: implement find: tree의 max key를 가지는 노드반환
@@ -264,7 +263,7 @@ int rbtree_erase(rbtree* t, node_t* z) {
 		x = z->left;
 		rbtransplant(t, z, z->left);
 	} else{
-		y= rbtree_min(z->right); //z가 자식이 둘 있을 경우 rbtree_min(z->right)는 z의 successor.
+		y= subtree_min(t, z->right); //z가 자식이 둘 있을 경우 rbtree_min(z->right)는 z의 successor.
 		x = y->right;
 		if (y->parent == z->parent){
 			x->parent = y;
