@@ -299,8 +299,6 @@ void in_order_to_arr(const rbtree* t, key_t* arr, node_t* tmp, int* index){
 int rbtree_to_array(const rbtree* t, key_t* arr, const size_t n) {
 	// TODO: implement to_array
 	// * RB tree의 내용을 key 순서대로 주어진 array로 변환
-	// * array의 크기는 n으로 주어지며 tree의 크기가 n 보다 큰 경우에는 순서대로 n개 까지만 변환
-	// * array의 메모리 공간은 이 함수를 부르는 쪽에서 준비하고 그 크기를 n으로 알려줍니다.
 	// inorder traversing
 
 	int *index = calloc(1, sizeof(index));
