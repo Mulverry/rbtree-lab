@@ -311,24 +311,24 @@ void test_to_array_suite() {
 }
 
 void test_find_erase(rbtree *t, const key_t *arr, const size_t n) {
+  printf("5-2-1통과\n");
   for (int i = 0; i < n; i++) {
     node_t *p = rbtree_insert(t, arr[i]);
     assert(p != NULL);
   }
-
+  printf("5-2-2통과\n");
   for (int i = 0; i < n; i++) {
     node_t *p = rbtree_find(t, arr[i]);
-    // printf("arr[%d] = %d\n", i, arr[i]);
     assert(p != NULL);
     assert(p->key == arr[i]);
     rbtree_erase(t, p);
   }
-
+  printf("5-2-3통과\n");
   for (int i = 0; i < n; i++) {
     node_t *p = rbtree_find(t, arr[i]);
     assert(p == NULL);
   }
-
+  printf("5-2-4통과\n");
   for (int i = 0; i < n; i++) {
     node_t *p = rbtree_insert(t, arr[i]);
     assert(p != NULL);
@@ -340,6 +340,7 @@ void test_find_erase(rbtree *t, const key_t *arr, const size_t n) {
     q = rbtree_find(t, arr[i]);
     assert(q == NULL);
   }
+  // printf("Debug\n");
 }
 
 void test_find_erase_fixed() {
@@ -347,10 +348,11 @@ void test_find_erase_fixed() {
   const size_t n = sizeof(arr) / sizeof(arr[0]);
   rbtree *t = new_rbtree();
   assert(t != NULL);
-
+  printf("5-1통과\n");
   test_find_erase(t, arr, n);
-
+  printf("5-2통과\n");
   delete_rbtree(t);
+  printf("5-3통과\n");
 }
 
 void test_find_erase_rand(const size_t n, const unsigned int seed) {
@@ -370,14 +372,23 @@ void test_find_erase_rand(const size_t n, const unsigned int seed) {
 int main(void) {
   test_init();
   test_insert_single(1024);
+  printf("2통과\n");
   test_find_single(512, 1024);
+  printf("3통과\n");
   test_erase_root(128);
+  printf("4통과\n");
   test_find_erase_fixed();
+  printf("5통과\n");
   test_minmax_suite();
+  printf("6통과\n");
   test_to_array_suite();
+  printf("7통과\n");
   test_distinct_values();
+  printf("8통과\n");
   test_duplicate_values();
+  printf("9통과\n");
   test_multi_instance();
+  printf("10통과\n");
   test_find_erase_rand(10000, 17);
-  printf("Passed all tests!\n");
+  printf("11통과\n");
 }
