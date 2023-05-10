@@ -95,119 +95,58 @@ void right_rotate(rbtree *t, node_t *x)
 	x->parent = y;
 }
 
-// void insert_fixup(rbtree *t, node_t *node_inserted)
-// {
-// 	node_t *grandparent = node_inserted->parent->parent;
-// 	node_t *parent = node_inserted->parent;
-// 	// 삽입 노드 부모 색이 BLACK -> 문제 X
-// 	if (parent->color == RBTREE_BLACK)
-// 	{
-// 		return;
-// 	}
-// 	// 삽입 노드 부모 색이 RED -> 문제 발생
-// 	else
-// 	{
-// 		// 삼촌 노드 찾기
-// 		node_t *node_uncle;
-// 		if (grandparent->left == parent)
-// 		{
-// 			node_uncle = grandparent->right;
-// 		}
-// 		else
-// 		{
-// 			node_uncle = grandparent->left;
-// 		}
-// 		// Case 1
-// 		if (node_uncle->color == RBTREE_RED)
-// 		{
-// 			parent->color = RBTREE_BLACK;
-// 			node_uncle->color = RBTREE_BLACK;
-// 			grandparent->color = RBTREE_RED;
-// 			if (t->root == grandparent)
-// 			{
-// 				t->root->color = RBTREE_BLACK;
-// 			}
-// 			insert_fixup(t, grandparent);
-// 		}
-// 		// Case 2, 3
-// 		else
-// 		{
-// 			// Case 2-1 (오른쪽으로 꺾임)
-// 			if (parent->left == node_inserted && grandparent->right == parent)
-// 			{
-// 				// TODO: 부모 기준으로 오른쪽으로 회전 - Case 3로 만들어줌
-// 				right_rotate(t, parent);
-// 				parent = node_inserted;
-// 			}
-// 			// Case 2-2 (왼쪽으로 꺾임)
-// 			else if (parent->right == node_inserted && grandparent->left == parent)
-// 			{
-// 				// TODO: 부모 기준으로 왼쪽으로 회전 - Case 3 로 만들어줌
-// 				left_rotate(t, parent);
-// 				parent = node_inserted;
-// 			}
-// 			// Case 3
-// 			color_t temp_color = parent->color;
-// 			parent->color = grandparent->color;
-// 			grandparent->color = temp_color;
-// 			if (grandparent->left == parent)
-// 			{
-// 				right_rotate(t, grandparent);
-// 			}
-// 			else
-// 			{
-// 				left_rotate(t, grandparent);
-// 			}
-// 		}
-// 	}
-// }
-
-void insert_fixup(rbtree *t, node_t *node_to_insert)
+void insert_fixup(rbtree *t, node_t *node_inserted)
 {
-	node_t *grandparent = node_to_insert->parent->parent;
-	node_t *parent = node_to_insert->parent;
+	node_t *grandparent = node_inserted->parent->parent;
+	node_t *parent = node_inserted->parent;
+	// 삽입 노드 부모 색이 BLACK -> 문제 X
 	if (parent->color == RBTREE_BLACK)
 	{
 		return;
 	}
+	// 삽입 노드 부모 색이 RED -> 문제 발생
 	else
 	{
-		// case1. 부모, 삼촌 ==RED -> 부모삼촌 모두 black으로 바꾸고, 할아버지는 red.
-		node_t *uncle;
-		if (parent == grandparent->left)
+		// 삼촌 노드 찾기
+		node_t *node_uncle;
+		if (grandparent->left == parent)
 		{
-			uncle = grandparent->right;
+			node_uncle = grandparent->right;
 		}
 		else
 		{
-			uncle = grandparent->left;
+			node_uncle = grandparent->left;
 		}
-		if (uncle->color == RBTREE_RED)
+		// Case 1
+		if (node_uncle->color == RBTREE_RED)
 		{
 			parent->color = RBTREE_BLACK;
-			uncle->color = RBTREE_BLACK;
+			node_uncle->color = RBTREE_BLACK;
 			grandparent->color = RBTREE_RED;
-			//node_to_insert = grandparent; // while문으로 다시 할아버지 확인
 			if (t->root == grandparent)
 			{
 				t->root->color = RBTREE_BLACK;
 			}
 			insert_fixup(t, grandparent);
 		}
+		// Case 2, 3
 		else
-		{ // case2, case3. 부모는 red인데 삼촌이 black인 경우
-			// case2-1. 왼쪽 꺾임
-			if (parent->right == node_to_insert && grandparent->left == parent)
+		{
+			// Case 2-1 (오른쪽으로 꺾임)
+			if (parent->left == node_inserted && grandparent->right == parent)
 			{
-				node_to_insert = parent;
-				left_rotate(t, node_to_insert); // 부모를 기준으로 왼쪽으로 회전
-			}									// case 2-2. 오른쪽 꺾임
-			else if (parent->left == node_to_insert && grandparent->right == parent)
-			{
-				node_to_insert = parent;
-				right_rotate(t, node_to_insert);
+				// TODO: 부모 기준으로 오른쪽으로 회전 - Case 3로 만들어줌
+				right_rotate(t, parent);
+				parent = node_inserted;
 			}
-			// case 3.
+			// Case 2-2 (왼쪽으로 꺾임)
+			else if (parent->right == node_inserted && grandparent->left == parent)
+			{
+				// TODO: 부모 기준으로 왼쪽으로 회전 - Case 3 로 만들어줌
+				left_rotate(t, parent);
+				parent = node_inserted;
+			}
+			// Case 3
 			color_t temp_color = parent->color;
 			parent->color = grandparent->color;
 			grandparent->color = temp_color;
@@ -222,6 +161,67 @@ void insert_fixup(rbtree *t, node_t *node_to_insert)
 		}
 	}
 }
+
+// void insert_fixup(rbtree *t, node_t *node_to_insert)
+// {
+// 	node_t *grandparent = node_to_insert->parent->parent;
+// 	node_t *parent = node_to_insert->parent;
+// 	if (parent->color == RBTREE_BLACK)
+// 	{
+// 		return;
+// 	}
+// 	else
+// 	{
+// 		// case1. 부모, 삼촌 ==RED -> 부모삼촌 모두 black으로 바꾸고, 할아버지는 red.
+// 		node_t *uncle;
+// 		if (parent == grandparent->left)
+// 		{
+// 			uncle = grandparent->right;
+// 		}
+// 		else
+// 		{
+// 			uncle = grandparent->left;
+// 		}
+// 		if (uncle->color == RBTREE_RED)
+// 		{
+// 			parent->color = RBTREE_BLACK;
+// 			uncle->color = RBTREE_BLACK;
+// 			grandparent->color = RBTREE_RED;
+// 			//node_to_insert = grandparent; // while문으로 다시 할아버지 확인
+// 			if (t->root == grandparent)
+// 			{
+// 				t->root->color = RBTREE_BLACK;
+// 			}
+// 			insert_fixup(t, grandparent);
+// 		}
+// 		else
+// 		{ // case2, case3. 부모는 red인데 삼촌이 black인 경우
+// 			// case2-1. 왼쪽 꺾임
+// 			if (parent->right == node_to_insert && grandparent->left == parent)
+// 			{
+// 				node_to_insert = parent;
+// 				left_rotate(t, node_to_insert); // 부모를 기준으로 왼쪽으로 회전
+// 			}									// case 2-2. 오른쪽 꺾임
+// 			else if (parent->left == node_to_insert && grandparent->right == parent)
+// 			{
+// 				node_to_insert = parent;
+// 				right_rotate(t, node_to_insert);
+// 			}
+// 			// case 3.
+// 			color_t temp_color = parent->color;
+// 			parent->color = grandparent->color;
+// 			grandparent->color = temp_color;
+// 			if (grandparent->left == parent)
+// 			{
+// 				right_rotate(t, grandparent);
+// 			}
+// 			else
+// 			{
+// 				left_rotate(t, grandparent);
+// 			}
+// 		}
+// 	}
+// }
 
 node_t *rbtree_insert(rbtree *t, const key_t key)
 {
